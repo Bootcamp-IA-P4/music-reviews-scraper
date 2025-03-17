@@ -1,0 +1,39 @@
+# Entorno virtual
+.venv/
+venv/
+env/
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Finder
+*.swp
+*~
+
+
+# Archivos de configuración de Python
+*.pyc
+*.pyo
+__pycache__/
+
+# Archivos de entorno
+.env
+
+# Archivos de configuración de IDEs (si usas alguno)
+.vscode/
+.idea/
+
+# Archivos de logs
+*.log
+
+# Archivos de base de datos locales
+*.sqlite3
+*.db
+
+# Carpeta donde se almacenarán los archivos CSV
+data/
