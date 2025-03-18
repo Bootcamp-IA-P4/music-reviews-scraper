@@ -1,4 +1,4 @@
-class Album:
+class Review:
     def __init__(self, title, artist, release_year, rating, genre, label, reviewer, review_text, url):
         self.title = title
         self.artist = artist

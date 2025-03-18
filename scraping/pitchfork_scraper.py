@@ -5,7 +5,7 @@ import time
 
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from scraping.album import Album
+from scraping.review import Review
 from scrapingbee import ScrapingBeeClient
 
 load_dotenv()
@@ -58,7 +58,7 @@ def get_album_urls():
     return album_urls
 
 # Extraer detalles de un álbum
-def get_album_details(album_url):
+def get_review_details(album_url):
     url = f"{BASE_URL.rstrip('/')}/{album_url.lstrip('/')}"
     try:
         response = client.get(url)
@@ -111,7 +111,7 @@ def get_album_details(album_url):
     review_text_tag = soup.find('div', class_='SplitScreenContentHeaderDekDown-csTFQR')
     review_text = review_text_tag.get_text(strip=True) if review_text_tag else "No disponible"
 
-    return Album(title, artist, release_year, rating, genre, label, reviewer, review_text, url)
+    return Review(title, artist, release_year, rating, genre, label, reviewer, review_text, url)
 
 # Guardar los datos en CSV
 def save_albums_to_csv(albums):

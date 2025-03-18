@@ -1,11 +1,11 @@
-from scraping.scraper import get_album_urls, get_album_details, save_albums_to_csv
+from scraping.pitchfork_scraper import get_album_urls, get_review_details, save_albums_to_csv
 
 def main():
     album_urls = get_album_urls()
     albums = []
 
     for album_url in album_urls:
-        album = get_album_details(album_url)
+        album = get_review_details(album_url)
         if album:
             albums.append(album)
 
