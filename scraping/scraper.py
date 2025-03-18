@@ -81,11 +81,13 @@ def get_album_details(album_url):
     release_tag = soup.find('time', {'data-testid': 'SplitScreenContentHeaderReleaseYear'})
     release_year = release_tag.get_text(strip=True) if release_tag else "Desconocido"
 
-    # ✅ Rating bien encapsulado dentro del scraping individual
+    # ✅ Rating
     rating = "Desconocido"
-    rating_tag = soup.find('p', class_='Rating-bkjebD')
-    if rating_tag:
-        rating = rating_tag.get_text(strip=True)
+    score_box = soup.find('div', class_='ScoreBoxWrapper-iBCGEf')
+    if score_box:
+        rating_tag = score_box.find('p', class_=lambda x: x and 'Rating-' in x)
+        rating = rating_tag.get_text(strip=True) if rating_tag else "Desconocido"
+
 
     # ✅ Inicializar género y label por cada álbum con diccionario
     genre, label = "Desconocido", "Desconocido"
