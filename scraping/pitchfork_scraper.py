@@ -113,7 +113,7 @@ def get_review_details(album_url):
     return Review(title, artist, release_year, rating, genre, label, reviewer, review_text, url)
 
 # Guardar los datos en CSV
-def save_albums_to_csv(albums):
+def save_reviews_to_csv(albums):
     if not os.path.exists('data'):
         os.makedirs('data')
 
