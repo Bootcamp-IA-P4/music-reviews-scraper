@@ -24,7 +24,7 @@ def get_album_urls():
     album_urls = []
     page = 1
 
-    while page <= 2:
+    while page <= 2: # Limita a 2 páginas en pruebas
         url = f"{ALBUM_REVIEWS_URL}?page={page}"
         try:
             response = client.get(url)
@@ -46,7 +46,6 @@ def get_album_urls():
                 href = href.lstrip('/')
             album_urls.append(href)
 
-        # Verificar si hay siguiente página
         next_page = soup.find('a', class_='BaseButton-bLlsy', string='Next Page')
         if not next_page:
             print("No hay más páginas. Terminando.")
@@ -69,28 +68,27 @@ def get_review_details(album_url):
 
     soup = BeautifulSoup(response.content, 'html.parser')
 
-    # ✅ Captura más robusta del título
+    # Título
     title_tag = soup.find('h1', {'data-testid': 'ContentHeaderHed'})
-    title = title_tag.get_text(strip=True) if title_tag else "Desconocido"
+    title = title_tag.get_text(strip=True) if title_tag else None
 
-    # ✅ Captura múltiple de artistas
+    # Artistas
     artist_tags = soup.select('ul.SplitScreenContentHeaderArtistWrapper-fiSZLT a')
-    artist = ", ".join([a.get_text(strip=True) for a in artist_tags]) if artist_tags else "Desconocido"
+    artist = ", ".join([a.get_text(strip=True) for a in artist_tags]) if artist_tags else None
 
-    # ✅ Año de lanzamiento
+    # Año de lanzamiento
     release_tag = soup.find('time', {'data-testid': 'SplitScreenContentHeaderReleaseYear'})
-    release_year = release_tag.get_text(strip=True) if release_tag else "Desconocido"
+    release_year = release_tag.get_text(strip=True) if release_tag else None
 
-    # ✅ Rating
-    rating = "Desconocido"
+    # Rating
+    rating = None
     score_box = soup.find('div', class_='ScoreBoxWrapper-iBCGEf')
     if score_box:
         rating_tag = score_box.find('p', class_=lambda x: x and 'Rating-' in x)
-        rating = rating_tag.get_text(strip=True) if rating_tag else "Desconocido"
+        rating = rating_tag.get_text(strip=True) if rating_tag else None
 
-
-    # ✅ Inicializar género y label por cada álbum con diccionario
-    genre, label = "Desconocido", "Desconocido"
+    # Género y sello
+    genre, label = None, None
     info_dict = {}
     for li in soup.select('li.InfoSliceListItem-hNmIoI'):
         key_tag = li.select_one('p.InfoSliceKey-gHIvng')
@@ -100,16 +98,17 @@ def get_review_details(album_url):
             value_text = value_tag.get_text(strip=True)
             info_dict[key_text] = value_text
 
-    genre = info_dict.get("Genre", "Desconocido")
-    label = info_dict.get("Label", "Desconocido")
+    genre = info_dict.get("Genre")
+    label = info_dict.get("Label")
 
-    # ✅ Nombre del reviewer
+    # Reviewer
     reviewer_tag = soup.find('span', class_='BylineName-kwmrLn')
-    reviewer = reviewer_tag.get_text(strip=True) if reviewer_tag else "Desconocido"
+    reviewer_link = reviewer_tag.find('a') if reviewer_tag else None
+    reviewer = reviewer_link.get_text(strip=True) if reviewer_link else None
 
-    # ✅ Texto de la review (Dek)
+    # Texto de la review
     review_text_tag = soup.find('div', class_='SplitScreenContentHeaderDekDown-csTFQR')
-    review_text = review_text_tag.get_text(strip=True) if review_text_tag else "No disponible"
+    review_text = review_text_tag.get_text(strip=True) if review_text_tag else None
 
     return Review(title, artist, release_year, rating, genre, label, reviewer, review_text, url)
 
@@ -123,4 +122,14 @@ def save_albums_to_csv(albums):
         writer.writerow(['Title', 'Artist', 'Release Year', 'Rating', 'Genre', 'Label', 'Reviewer', 'Review Text', 'URL'])
 
         for album in albums:
-            writer.writerow([album.title, album.artist, album.release_year, album.rating, album.genre, album.label, album.reviewer, album.review_text, album.url])
+            writer.writerow([
+                album.title if album.title is not None else "Unknown",
+                album.artist if album.artist is not None else "Unknown",
+                album.release_year if album.release_year is not None else "Unknown",
+                album.rating if album.rating is not None else "Unknown",
+                album.genre if album.genre is not None else "Unknown",
+                album.label if album.label is not None else "Unknown",
+                album.reviewer if album.reviewer is not None else "Unknown",
+                album.review_text if album.review_text is not None else "Unknown",
+                album.url
+            ])
