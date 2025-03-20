@@ -6,28 +6,36 @@ import time
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from scraping.review import Review
-from scrapingbee import ScrapingBeeClient
 
 load_dotenv()
 
-API_KEY = os.getenv('SCRAPINGBEE_API_KEY')
+API_KEY = os.getenv('SCRAPER_API_KEY')
 BASE_URL = os.getenv('BASE_URL')
 ALBUM_REVIEWS_URL = os.getenv('ALBUM_REVIEWS_URL')
 
 if not API_KEY:
-    raise ValueError("No se ha encontrado una API Key de ScrapingBee en el archivo .env")
+    raise ValueError("No se ha encontrado una API Key de ScraperAPI en el archivo .env")
 
-client = ScrapingBeeClient(api_key=API_KEY)
+SCRAPERAPI_URL = 'https://api.scraperapi.com/'
+
+# Función para hacer requests a través de ScraperAPI
+def scraperapi_get(target_url):
+    payload = {
+        'api_key': API_KEY,
+        'url': target_url
+    }
+    response = requests.get(SCRAPERAPI_URL, params=payload)
+    return response
 
 # Obtener los enlaces de los álbumes
 def get_album_urls():
     album_urls = []
     page = 1
 
-    while page <= 2: # Limita a 2 páginas en pruebas
+    while page <= 40:  # Límite de 40 páginas para no exceder el límite de requests gratuitas de ScraperAPI
         url = f"{ALBUM_REVIEWS_URL}?page={page}"
         try:
-            response = client.get(url)
+            response = scraperapi_get(url)
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
             print(f"Error al hacer la solicitud a la página {page}: {e}")
@@ -40,7 +48,7 @@ def get_album_urls():
             print("No se encontraron más álbumes. Terminando.")
             break
 
-        for link in album_links[:2]:  # Limita a 2 álbumes por página en pruebas
+        for link in album_links:
             href = link.get('href')
             if href.startswith('/'):
                 href = href.lstrip('/')
@@ -52,7 +60,7 @@ def get_album_urls():
             break
 
         page += 1
-        time.sleep(2)
+        time.sleep(1)
 
     return album_urls
 
@@ -60,7 +68,7 @@ def get_album_urls():
 def get_review_details(album_url):
     url = f"{BASE_URL.rstrip('/')}/{album_url.lstrip('/')}"
     try:
-        response = client.get(url)
+        response = scraperapi_get(url)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         print(f"Error al hacer la solicitud de detalles del álbum: {e}")
