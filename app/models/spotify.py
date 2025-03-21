@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date
 from app.core.database import Base
 
 class SavedAlbum(Base):
@@ -6,8 +6,10 @@ class SavedAlbum(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String, nullable=False)
-    album_name = Column(String, nullable=False)
-    artist_name = Column(String, nullable=False)
+    title = Column(String, nullable=False)
+    artist = Column(String, nullable=False)
     label = Column(String)
     release_date = Column(Date)
-    external_url = Column(String)
+    url = Column(String)
+
+
