@@ -37,3 +37,6 @@ __pycache__/
 
 # Carpeta donde se almacenarán los archivos CSV
 data/
+
+# Carpeta donde se almacenarán las versiones de seguridad de los notebooks de jupyter
+.ipynb_checkpoints/
