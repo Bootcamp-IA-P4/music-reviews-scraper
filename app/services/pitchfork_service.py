@@ -1,8 +1,7 @@
-from database.models import AlbumReview
+from app.models.pitchfork import AlbumReview
 from sqlalchemy.orm import Session
-from scraping.review import Review
 
-def save_reviews_to_db(db: Session, reviews: list[Review]):
+def save_reviews_to_db(db: Session, reviews: list):
     inserted_count = 0
     for review in reviews:
         # Verifica si el álbum ya existe por título

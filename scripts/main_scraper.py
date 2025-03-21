@@ -1,12 +1,12 @@
 import sys
 import os
 
-# Agregar la ruta de la raíz del proyecto al sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from scraping.pitchfork_scraper import get_album_urls, get_review_details,  save_reviews_to_csv
-from database.database import SessionLocal
-from database.crud import save_reviews_to_db
+from app.services.pitchfork_scraper import get_album_urls, get_review_details
+from app.utils.csv_utils import save_reviews_to_csv
+from app.core.database import SessionLocal
+from app.services.pitchfork_service import save_reviews_to_db
 
 def main():
     urls = get_album_urls()

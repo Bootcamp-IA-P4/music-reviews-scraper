@@ -5,7 +5,6 @@ import time
 
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from scraping.review import Review
 
 load_dotenv()
 
@@ -17,6 +16,19 @@ if not API_KEY:
     raise ValueError("No se ha encontrado una API Key de ScraperAPI en el archivo .env")
 
 SCRAPERAPI_URL = 'https://api.scraperapi.com/'
+
+
+class Review:
+    def __init__(self, title, artist, release_year, rating, genre, label, reviewer, review_text, url):
+        self.title = title
+        self.artist = artist
+        self.release_year = release_year
+        self.rating = rating
+        self.genre = genre
+        self.label = label
+        self.reviewer = reviewer
+        self.review_text = review_text
+        self.url = url
 
 # Función para hacer requests a través de ScraperAPI
 def scraperapi_get(target_url):
@@ -119,25 +131,3 @@ def get_review_details(album_url):
     review_text = review_text_tag.get_text(strip=True) if review_text_tag else None
 
     return Review(title, artist, release_year, rating, genre, label, reviewer, review_text, url)
-
-# Guardar los datos en CSV
-def save_reviews_to_csv(albums):
-    if not os.path.exists('data'):
-        os.makedirs('data')
-
-    with open('data/albums.csv', mode='w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        writer.writerow(['Title', 'Artist', 'Release Year', 'Rating', 'Genre', 'Label', 'Reviewer', 'Review Text', 'URL'])
-
-        for album in albums:
-            writer.writerow([
-                album.title if album.title is not None else "Unknown",
-                album.artist if album.artist is not None else "Unknown",
-                album.release_year if album.release_year is not None else "Unknown",
-                album.rating if album.rating is not None else "Unknown",
-                album.genre if album.genre is not None else "Unknown",
-                album.label if album.label is not None else "Unknown",
-                album.reviewer if album.reviewer is not None else "Unknown",
-                album.review_text if album.review_text is not None else "Unknown",
-                album.url
-            ])

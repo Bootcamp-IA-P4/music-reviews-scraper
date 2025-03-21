@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, UniqueConstraint
-from database.database import Base
+from app.core.database import Base
 
 class AlbumReview(Base):
     __tablename__ = 'pitchfork_reviews'

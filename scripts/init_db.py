@@ -5,8 +5,10 @@ import os
 # Agregar la ruta de la raíz del proyecto al sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from database.database import engine, Base
-from database.models import AlbumReview 
+from app.core.database import engine, Base
+from app.models.pitchfork import AlbumReview 
+from app.models.spotify import SavedAlbum  # Añades esta línea
+
 
 def create_tables():
     Base.metadata.create_all(bind=engine)
