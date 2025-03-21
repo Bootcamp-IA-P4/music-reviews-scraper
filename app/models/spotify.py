@@ -5,11 +5,11 @@ class SavedAlbum(Base):
     __tablename__ = "spotify_saved_albums"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String, nullable=False)
-    title = Column(String, nullable=False)
-    artist = Column(String, nullable=False)
+    user_id = Column(String)
+    title = Column(String)
+    artist = Column(String)
     label = Column(String)
-    release_date = Column(Date)
+    release_year = Column(String)
     url = Column(String)
 
 

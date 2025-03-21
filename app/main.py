@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api import pitchfork, spotify, recommended
+from app.routes import pitchfork, spotify, recommended
 
 app = FastAPI()
 
@@ -8,8 +8,8 @@ async def root():
     return {"message": "Welcome to my music reviews app!"}
 
 app.include_router(spotify.router)
-# app.include_router(pitchfork.router)
-# app.include_router(recommended.router)
+app.include_router(pitchfork.router)
+app.include_router(recommended.router)
 
 if __name__ == "__main__":
     import uvicorn

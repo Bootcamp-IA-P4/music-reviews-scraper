@@ -1,5 +1,3 @@
-# app/api/spotify.py
-
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import RedirectResponse
 import httpx
@@ -8,8 +6,10 @@ from typing import Dict, Optional
 import os
 import urllib.parse
 
-# Cargar las variables de entorno
+# Configuración y servicios
 from app.core.config import settings
+from app.services.spotify_service import save_spotify_albums
+from app.core.database import SessionLocal
 
 CLIENT_ID = settings.SPOTIFY_CLIENT_ID
 CLIENT_SECRET = settings.SPOTIFY_CLIENT_SECRET
@@ -23,7 +23,7 @@ SCOPES = ["user-read-email", "user-read-private", "playlist-read-private", "user
 
 router = APIRouter()
 
-# Simulando sesión (usar Redis o base de datos en producción)
+# Simulando sesión temporal (idealmente usar Redis o persistencia real)
 session: Dict[str, Optional[str]] = {}
 
 @router.get("/login")
@@ -56,6 +56,7 @@ async def callback(code: str, error: Optional[str] = None):
 
         token_info = response.json()
 
+    # Guardamos tokens en la "sesión"
     session['access_token'] = token_info.get('access_token')
     session['refresh_token'] = token_info.get('refresh_token')
     session['expires_at'] = datetime.now().timestamp() + token_info.get('expires_in', 3600)
@@ -119,11 +120,18 @@ async def saved_albums():
                     'title': album.get('name'),
                     'artists': [artist['name'] for artist in album.get('artists', [])],
                     'label': album.get('label'),
-                    'release_date': album.get('release_date'),
+                    'release_year': album.get('release_date', '').split("-")[0],
                     'url': album.get('external_urls', {}).get('spotify'),
                 }
                 albums_list.append(album_info)
 
             offset += limit
+
+    # Guardar en la base de datos
+    db = SessionLocal()
+    try:
+        save_spotify_albums(user_id="test_user", albums_list=albums_list, db=db)
+    finally:
+        db.close()
 
     return {"saved_albums": albums_list}
