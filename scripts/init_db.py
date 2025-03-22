@@ -7,7 +7,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app.core.database import engine, Base
 from app.models.pitchfork import AlbumReview 
-from app.models.spotify import SavedAlbum  # Añades esta línea
+from app.models.spotify import SavedAlbum
+from app.models.spotify_token import SpotifyToken
 
 
 def create_tables():
