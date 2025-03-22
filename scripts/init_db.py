@@ -9,6 +9,7 @@ from app.core.database import engine, Base
 from app.models.pitchfork import AlbumReview 
 from app.models.spotify import SavedAlbum
 from app.models.spotify_token import SpotifyToken
+from app.models.user import User
 
 
 def create_tables():

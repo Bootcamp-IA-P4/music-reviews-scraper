@@ -75,3 +75,18 @@ async def fetch_and_store_saved_albums(user_id: str):
         db.close()
 
     return albums_list
+
+# Obtener perfil del usuario de Spotify
+async def get_user_profile(access_token: str) -> dict:
+    """
+    Obtiene el perfil del usuario de Spotify (incluye el id real de Spotify).
+    """
+
+    headers = {'Authorization': f"Bearer {access_token}"}
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"{SPOTIFY_API_BASE_URL}/me", headers=headers)
+
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail="Failed to fetch Spotify user profile")
+    
+    return response.json()
