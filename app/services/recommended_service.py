@@ -1,26 +1,38 @@
 from sqlalchemy.orm import Session
 from app.models.spotify import SavedAlbum
 from app.models.pitchfork import AlbumReview
+from sqlalchemy import or_
 
 def get_recommended_reviews(user_id: str, db: Session):
     saved_albums = db.query(SavedAlbum).filter_by(user_id=user_id).all()
-    recommended = []
-
+    recommended = {}
+    
     for album in saved_albums:
+        spotify_artists = [artist.strip().lower() for artist in album.artist.split(",")]
+        spotify_title = album.title.strip().lower()
+
+        artist_conditions = [
+            AlbumReview.artist.ilike(f"%{artist}%") for artist in spotify_artists
+        ]
+
         query = db.query(AlbumReview).filter(
-            (AlbumReview.artist.ilike(f"%{album.artist}%")) |
-            (AlbumReview.title.ilike(f"%{album.title}%")) |
-            (AlbumReview.label.ilike(f"%{album.label}%"))
+            or_(
+                *artist_conditions,
+                AlbumReview.title.ilike(f"%{spotify_title}%")
+            )
         )
+
         matches = query.all()
         for match in matches:
-            recommended.append({
-                "pitchfork_title": match.title,
-                "pitchfork_artist": match.artist,
-                "rating": match.rating,
-                "label": match.label,
-                "spotify_album": album.title,
-                "spotify_artist": album.artist
-            })
+            # Usamos la URL de Pitchfork como clave para evitar duplicados
+            if match.url not in recommended:
+                recommended[match.url] = {
+                    "title": match.title,
+                    "artist": match.artist,
+                    "rating": match.rating,
+                    "label": match.label,
+                    "pitchfork_url": match.url
+                }
 
-    return recommended
+    # Devolvemos solo los valores únicos
+    return list(recommended.values())

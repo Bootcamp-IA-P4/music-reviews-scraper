@@ -98,7 +98,7 @@ async def saved_albums():
     albums_list = []
     limit = 50
     offset = 0
-    max_albums = 500
+    max_albums = 200 # Límite de álbumes a obtener (los últimos 200) 
 
     async with httpx.AsyncClient() as client:
         while len(albums_list) < max_albums:
