@@ -22,6 +22,7 @@ async def login():
         "redirect_uri": settings.SPOTIFY_REDIRECT_URI,
         "scope": " ".join(SPOTIFY_SCOPES),
         "client_id": settings.SPOTIFY_CLIENT_ID,
+        "show_dialog": True
     }
     auth_url = f"https://accounts.spotify.com/authorize?{urllib.parse.urlencode(params)}"
     return RedirectResponse(auth_url)
@@ -36,7 +37,7 @@ async def callback(code: str, error: str = None):
         raise HTTPException(status_code=400, detail=f"Error: {error}")
 
     token_info = await spotify_token_service.exchange_code_for_token(code)
-    user_id = "test_user"  # Cambiar luego por usuario real
+    user_id = "test_user_2"  # Cambiar luego por usuario real
     await spotify_token_service.store_token(user_id, token_info)
 
     return RedirectResponse("/saved_albums")
@@ -46,6 +47,6 @@ async def saved_albums():
     """
     Obtiene los álbumes guardados del usuario y los almacena en la base de datos
     """
-    user_id = "test_user"  # Luego se obtiene de la autenticación real
+    user_id = "test_user_2"  # Luego se obtiene de la autenticación real
     albums_list = await spotify_service.fetch_and_store_saved_albums(user_id)
     return {"saved_albums": albums_list}
