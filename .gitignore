@@ -40,3 +40,44 @@ data/
 
 # Carpeta donde se almacenarán las versiones de seguridad de los notebooks de jupyter
 .ipynb_checkpoints/
+
+# frontend
+# dependencies
+/frontend/node_modules
+/frontend/.pnp
+/frontend.pnp.*
+/frontend.yarn/*
+!/frontend.yarn/patches
+!/frontend.yarn/plugins
+!/frontend.yarn/releases
+!/frontend.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/frontend/.next/
+/frontend/out/
+
+# production
+/frontend/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
