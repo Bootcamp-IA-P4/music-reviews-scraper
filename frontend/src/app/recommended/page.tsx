@@ -1,25 +1,36 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import SpotifyLoginButton from "../components/SpotifyLoginButton";
+import { useSearchParams } from "next/navigation";
 import SearchForm from "../components/SearchForm";
 import ReviewList, { Review } from "../components/ReviewList";
-import Pagination from "../components/Pagination";
 
-export default function ReviewsPage() {
+export default function RecommendedPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(0);
   const [searchArtist, setSearchArtist] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchReviews = () => {
-    setLoading(true);
-    const params = searchQuery
-      ? `artist=${encodeURIComponent(searchQuery)}`
-      : `limit=50&offset=${page * 50}`;
+  const searchParams = useSearchParams();
+  const spotifyUserId = searchParams.get("spotify_user_id");
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/reviews?${params}`)
+  const fetchReviews = () => {
+    if (!spotifyUserId) return;
+
+    setLoading(true);
+
+    const params = new URLSearchParams();
+    params.append("spotify_user_id", spotifyUserId || "");
+
+    if (searchQuery) {
+      params.append("artist", searchQuery);
+    }
+
+    fetch(
+      `${
+        process.env.NEXT_PUBLIC_API_URL
+      }/recommended_reviews?${params.toString()}`
+    )
       .then((res) => res.json())
       .then((data) => setReviews(data))
       .catch((err) => console.error(err))
@@ -27,19 +38,18 @@ export default function ReviewsPage() {
   };
 
   useEffect(() => {
-    fetchReviews();
-  }, [page, searchQuery]);
+    if (spotifyUserId) fetchReviews();
+  }, [searchQuery, spotifyUserId]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setPage(0); // reset page when searching
     setSearchQuery(searchArtist);
   };
 
   return (
     <>
       <h1 className="text-4xl font-light mb-12 border-b pb-4 pt-12">
-        Pitchfork Album Reviews
+        Pitchfork Reviews For You
       </h1>
 
       {/* 🔎 Search */}
@@ -49,18 +59,15 @@ export default function ReviewsPage() {
         handleSearch={handleSearch}
       />
 
-      {/* 🎵 Spotify Login */}
-      <SpotifyLoginButton />
+      {!loading && reviews.length > 0 && (
+        <p className="text-lg mb-6 text-gray-500">
+          Whoa! Looks like there are {reviews.length} reviews you might find
+          interesting 🎧
+        </p>
+      )}
 
       {/* 📄 Reviews */}
       <ReviewList reviews={reviews} loading={loading} />
-
-      {/* Pagination */}
-      <Pagination
-        page={page}
-        setPage={setPage}
-        hasSearchQuery={!!searchQuery}
-      />
 
       <div className="h-20" />
     </>
