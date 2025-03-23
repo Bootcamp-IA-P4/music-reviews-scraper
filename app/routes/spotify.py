@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Response, Request
+from fastapi import APIRouter, HTTPException, Depends, Response, Request, Query
 from fastapi.responses import RedirectResponse, JSONResponse
 from app.services import spotify_token_service, spotify_service, user_service
 from sqlalchemy.orm import Session
@@ -51,19 +51,31 @@ async def callback(code: str, error: str = None, db: Session = Depends(get_db)):
     # Guardamos el token usando el user.id de nuestra base de datos
     await spotify_token_service.store_token(user.id, token_info)
 
-    # Redirigimos a la vista de saved albums con la cookie seteada
-    response = RedirectResponse(url="/saved_albums")
-    response.set_cookie(key="spotify_user_id", value=spotify_user_id)
+    try:
+        albums_list = await spotify_service.fetch_and_store_saved_albums(user.id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al almacenar los álbumes: {str(e)}")
+
+
+    # Redirigimos a la vista del frontend y seteamos una cookie con el spotify_user_id para el backend
+    frontend_url = f"http://localhost:3000/recommended?spotify_user_id={spotify_user_id}"
+    response = RedirectResponse(url=frontend_url)
     return response
 
+
 @router.get("/saved_albums")
-async def saved_albums(request: Request, db: Session = Depends(get_db)):
+async def saved_albums(
+    spotify_user_id: str = Query(None),
+    db: Session = Depends(get_db)
+):
     """
     Obtiene los álbumes guardados del usuario de Spotify y los almacena en la base de datos.
+    Se prioriza el spotify_user_id recibido por query param, pero si no se recibe, 
+    se intenta recuperar de las cookies.
     """
-    spotify_user_id = request.cookies.get("spotify_user_id")
+
     if not spotify_user_id:
-        raise HTTPException(status_code=400, detail="Spotify user ID missing in cookies")
+        raise HTTPException(status_code=400, detail="Spotify user ID missing (param or cookie)")
 
     # Buscamos al usuario en nuestra base de datos usando el spotify_user_id
     user = db.query(user_service.User).filter_by(spotify_user_id=spotify_user_id).first()
