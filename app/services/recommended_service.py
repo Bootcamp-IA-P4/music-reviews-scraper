@@ -27,11 +27,13 @@ def get_recommended_reviews(user_id: str, db: Session):
             # Usamos la URL de Pitchfork como clave para evitar duplicados
             if match.url not in recommended:
                 recommended[match.url] = {
+                    "id": match.id,
                     "title": match.title,
                     "artist": match.artist,
                     "rating": match.rating,
+                    "reviewer": match.reviewer,
                     "label": match.label,
-                    "pitchfork_url": match.url
+                    "url": match.url
                 }
 
     # Devolvemos solo los valores únicos
