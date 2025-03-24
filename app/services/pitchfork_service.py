@@ -23,4 +23,3 @@ def save_reviews_to_db(db: Session, reviews: list):
             inserted_count += 1
 
     db.commit()
-    print(f"{inserted_count} reseñas insertadas.")

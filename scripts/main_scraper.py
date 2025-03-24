@@ -7,6 +7,8 @@ from app.services.pitchfork_scraper import get_album_urls, get_review_details
 from app.utils.csv_utils import save_reviews_to_csv
 from app.core.database import SessionLocal
 from app.services.pitchfork_service import save_reviews_to_db
+from app.utils.logger import logger
+
 
 def main():
     urls = get_album_urls()
@@ -17,7 +19,7 @@ def main():
             reviews.append(review)
 
     save_reviews_to_csv(reviews)
-    print(f"Se han guardado {len(reviews)} álbumes en el archivo CSV.")
+    logger.info(f"{len(reviews)} reseñas insertadas en la BBDD.")
 
     db = SessionLocal()
     save_reviews_to_db(db, reviews)
